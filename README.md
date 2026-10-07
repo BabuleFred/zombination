@@ -1,5 +1,9 @@
 # Зомбинация — HTML5-ремейк
 
+![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-e34f26)
+![No dependencies](https://img.shields.io/badge/dependencies-0-success)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
 Ремейк легендарной флеш-игры «Зомбинация» из ВКонтакте — на чистом HTML5 Canvas.
 
 **Без Flash. Без фреймворков. Без единого внешнего файла-ассета: вся графика и весь звук
