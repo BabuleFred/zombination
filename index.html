@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Зомбинация — ремейк</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <canvas id="field" width="960" height="600"></canvas>
+
+  <!-- Верхняя панель -->
+  <div id="topbar">
+    <div id="lvlbox">
+      <div id="lvlbadge">1</div>
+      <div id="xpwrap"><div id="xpbar"></div><span id="xptext">0%</span></div>
+    </div>
+    <div class="tb-btn" id="btnSound" title="Звук">🔊</div>
+    <div class="tb-btn" id="btnMusic" title="Музыка">🎵</div>
+    <div class="tb-btn" id="btnHelp" title="Как играть">❓ Помощь</div>
+    <div id="hpwrap">
+      <div id="hpL"><div class="hpfill" id="hpLfill"></div><span id="hpLtext"></span></div>
+      <div id="vs">VS</div>
+      <div id="hpR"><div class="hpfill" id="hpRfill"></div><span id="hpRtext"></span></div>
+    </div>
+    <div class="tb-btn" id="btnPause" title="Пауза">⏸</div>
+  </div>
+
+  <!-- ===== ХАБ (кнопки поверх рисованного склепа) ===== -->
+  <div id="hub" class="uilayer">
+    <button class="hubspot" data-spot="arena">АРЕНА<div class="sub">быстрый бой</div></button>
+    <button class="hubspot" data-spot="campaign">КАМПАНИЯ<div class="sub" id="hubCampProgress"></div></button>
+    <button class="hubspot decor" data-spot="shop">МАГАЗИН</button>
+    <button class="hubspot decor" data-spot="architect">АРХИТЕКТОР</button>
+    <button class="hubspot decor" data-spot="skills">НАВЫКИ</button>
+    <button class="hubspot decor" data-spot="artifacts">АРТЕФАКТЫ</button>
+    <button class="hubspot decor" data-spot="spitki">БОЙ НА СПИТКИ</button>
+  </div>
+
+  <!-- ===== КАРТА КАМПАНИИ ===== -->
+  <div id="campaign" class="uilayer hidden">
+    <button id="campClose" title="Закрыть">✕</button>
+    <div id="campTip" class="hidden"></div>
+  </div>
+
+  <!-- ===== Настройка арены ===== -->
+  <div id="arenaSetup" class="screen hidden">
+    <div class="modal">
+      <h2>Бой на Арене</h2>
+      <div id="sidePick">
+        <div class="sidecard" id="pickZombie"><canvas width="110" height="110"></canvas><div>ЗА ЗОМБИ</div><small>Разорить ферму</small></div>
+        <div class="sidecard" id="pickHuman"><canvas width="110" height="110"></canvas><div>ЗА ФЕРМЕРОВ</div><small>Защитить ферму</small></div>
+      </div>
+      <div id="diffPick">
+        Сложность:
+        <button data-d="easy">Легко</button>
+        <button data-d="normal" class="sel">Норма</button>
+        <button data-d="hard">Хардкор</button>
+      </div>
+      <button id="btnArenaGo">В БОЙ!</button>
+    </div>
+  </div>
+
+  <!-- ===== Интро миссии ===== -->
+  <div id="missionIntro" class="screen hidden">
+    <div class="rustbanner">
+      <div class="ribbon" id="miName"></div>
+      <p id="miText"></p>
+      <div id="miReward"></div>
+      <div class="mirow">
+        <button id="miGo">ИГРАТЬ!</button>
+        <button id="miBack" class="ghost">Назад</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Чат -->
+  <div id="chat" class="hidden">
+    <div id="chatTitle">ЧАТ <span id="chatClose">▲</span></div>
+    <div id="chatLog"></div>
+  </div>
+
+  <!-- ===== НИЖНЯЯ ПАНЕЛЬ (только в бою) ===== -->
+  <div id="bottombar" class="hidden">
+    <div id="cards">
+      <div class="cardsrow">
+        <div class="rowlabel">ВО<br>И<br>НЫ</div>
+        <div id="unitCards" class="cardlist"></div>
+      </div>
+      <div class="cardsrow">
+        <div class="rowlabel">ЗА<br>ЩИ<br>ТА</div>
+        <div id="defCards" class="cardlist"></div>
+      </div>
+    </div>
+    <div id="rightpanel">
+      <div id="midrow">
+        <div id="rageBank">
+          <button id="btnRage"><span class="rb-ico">⚔</span><span class="rb-txt">ЯРОСТЬ</span><div id="rageFill"></div></button>
+          <button id="btnBank"><span class="rb-ico">🪙</span><span class="rb-txt">БАНК</span><span id="bankCd"></span></button>
+        </div>
+        <div id="portraits">
+          <div class="pcard"><canvas id="ppMe" width="76" height="76"></canvas></div>
+          <div id="pvs">VS</div>
+          <div class="pcard"><canvas id="ppFoe" width="76" height="76"></canvas></div>
+        </div>
+      </div>
+      <div id="statusrow">
+        <div id="stCap">👥 0/20</div>
+        <div id="stMoney"><span class="coin"></span> 0</div>
+        <div id="stScore">ОЧКИ: 0</div>
+        <div id="stTimer">🕓 5:00</div>
+        <button id="btnSurrender">СДАТЬСЯ!</button>
+        <button id="btnChat">💬 ЧАТ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Помощь ===== -->
+  <div id="help" class="screen hidden">
+    <div class="modal">
+      <h2>Как играть</h2>
+      <ul>
+        <li>🪙 Монеты капают сами (+больше с уровнем). За убийства тоже дают монеты и очки.</li>
+        <li>🃏 Нанимай юнитов карточками внизу — они сами идут к базе врага и дерутся.</li>
+        <li>🛡 Карточки «ЗАЩИТА» ставят ловушки и турели в слоты у твоей базы.</li>
+        <li>⭐ Очки опыта поднимают уровень: открываются новые юниты (замки на карточках).</li>
+        <li>⚔ ЯРОСТЬ заряжается от урона: жми, чтобы удвоить атаку на 8 секунд.</li>
+        <li>🪙 БАНК раз в 45 сек даёт 400 монет авансом.</li>
+        <li>🕓 Не успел снести базу за 5 минут — победит тот, у кого больше очков.</li>
+        <li>📜 В кампании 7 миссий на расу — прогресс сохраняется.</li>
+      </ul>
+      <button class="closeModal">Понятно!</button>
+    </div>
+  </div>
+
+  <!-- ===== Результат ===== -->
+  <div id="result" class="screen hidden">
+    <div class="modal">
+      <h2 id="resTitle">ПОБЕДА!</h2>
+      <div id="resStats"></div>
+      <div id="resBtns"></div>
+    </div>
+  </div>
+
+  <div id="pauseOverlay" class="screen hidden"><div class="pauseText">ПАУЗА<br><small>кликни, чтобы продолжить</small></div></div>
+  <div id="toast" class="hidden"></div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/sfx.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
